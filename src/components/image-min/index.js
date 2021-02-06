@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {promisify} from 'util'
 import fs from 'fs'
 import compressor from 'imagemin-pngquant'
+import uuid from 'uuid/dist/v4'
 import {
   FormControl,
   FormControlLabel,
@@ -12,12 +13,9 @@ import {
   Select as BaseSelect,
   MenuItem,
   Button,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
-  Typography,
 } from '@material-ui/core'
+import ResultList from './List'
 import {DropzoneElectron} from '../dropzone'
 import {getImageInfo} from '../../vendor/video-info'
 import {fsPromisesStats} from '../../vendor/file-util'
@@ -45,6 +43,7 @@ const ImageMin = function () {
   const [currQuality, setCurrQuality] = useState(QUALITY_LIST[2])
 
   const [uploadFiles, setUploadFiles] = useState(new Set())
+  const [doneList, setDoneList] = useState([])
   const [convState, setConvState] = useState(false)
 
   useEffect(() => {
@@ -57,14 +56,12 @@ const ImageMin = function () {
         // audioRate: '192k',
         // videoRate: currRate,
       }
-      console.log(ffmpegPath)
       for (const file of uploadFiles) {
         const context = {...convConfig, src: file, srcVideo: file}
 
-        const {videoResolution, ...rest} = await getImageInfo(context)
+        const {videoResolution} = await getImageInfo(context)
         const state = await fsPromisesStats(file)
         const {size} = state
-        console.log(rest)
         const width = videoResolution.split('x')[0]
         const height = videoResolution.split('x')[1]
 
@@ -95,7 +92,7 @@ const ImageMin = function () {
           currSize = size
         }
 
-        console.clear()
+        // console.clear()
 
         const buffer = await readFile(output)
         try {
@@ -122,12 +119,19 @@ const ImageMin = function () {
             fs.rename(output, correctFilePath, () => {}) // 重命名
           }
         }
+
+        setDoneList([...doneList, correctFilePath])
       }
       setUploadFiles(new Set())
       setConvState(false)
     }
     fn()
   }, [convState])
+
+  const handleItemClick = async i => {
+    const res = await upload(doneList[i], generateUploadKey(doneList[i]), console.log)
+    console.log(res)
+  }
 
   return (
     <>
@@ -170,18 +174,7 @@ const ImageMin = function () {
         </Button>
       </Box>
       <Paper square className={classes.paper}>
-        <Typography className={classes.text} variant="h6" gutterBottom>
-          日志
-        </Typography>
-        <Box display="flex" flexDirection="row">
-          <List component="nav" aria-label="secondary mailbox folders" className={classes.list}>
-            {Array.from(uploadFiles).map((log, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={log} />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
+        <ResultList list={doneList} onClick={handleItemClick} />
       </Paper>
     </>
   )
@@ -247,6 +240,10 @@ const Select = ({value, list, onChange, label}) => {
 const correctExtName = (file, extname) => {
   const {dir, name} = path.parse(file)
   return dir + '/' + name + extname
+}
+const generateUploadKey = file => {
+  const {ext} = path.parse(file)
+  return 'assets/' + uuid() + ext
 }
 
 export default ImageMin
