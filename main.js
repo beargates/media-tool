@@ -23,8 +23,9 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     // width: isDev ? 3200 : 1600,
     // height: isDev ? 1600 : 800,
-    width: 1600,
+    width: 1200,
     height: 800,
+    // transparent: true,
     webPreferences: {
       allowRunningInsecureContent: true,
       nodeIntegration: true, // 不设置该项 qiniu sdk 会报错

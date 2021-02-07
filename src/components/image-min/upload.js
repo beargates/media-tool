@@ -12,8 +12,9 @@
 import {uploadToQiniu} from './upload-qiniu-node'
 import config from './qiniu-config'
 
-function upload(file, key) {
-  return uploadToQiniu({...config, key, localFile: file})
+async function upload(file, key) {
+  const url = await uploadToQiniu({...config, key, localFile: file})
+  return {url}
 }
 
 export default upload

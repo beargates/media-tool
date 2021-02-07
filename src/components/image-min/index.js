@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react'
 import {promisify} from 'util'
 import fs from 'fs'
 import compressor from 'imagemin-pngquant'
-import uuid from 'uuid/dist/v4'
 import {
   FormControl,
   FormControlLabel,
@@ -20,7 +19,6 @@ import {DropzoneElectron} from '../dropzone'
 import {getImageInfo} from '../../vendor/video-info'
 import {fsPromisesStats} from '../../vendor/file-util'
 import proc from './process'
-import upload from './upload'
 
 const path = require('path')
 const {app} = require('electron').remote
@@ -56,6 +54,7 @@ const ImageMin = function () {
         // audioRate: '192k',
         // videoRate: currRate,
       }
+      const tempDoneList = new Set(doneList)
       for (const file of uploadFiles) {
         const context = {...convConfig, src: file, srcVideo: file}
 
@@ -85,7 +84,7 @@ const ImageMin = function () {
         let {size: currSize} = await fsPromisesStats(output)
 
         const correctFilePath = correctExtName(file, targetExtName)
-        if (currSize > size) {
+        if (currSize >= size) {
           fs.unlink(output, () => {})
           // 修正扩展名
           output = correctFilePath
@@ -120,18 +119,14 @@ const ImageMin = function () {
           }
         }
 
-        setDoneList([...doneList, correctFilePath])
+        tempDoneList.add(correctFilePath)
       }
       setUploadFiles(new Set())
+      setDoneList(Array.from(tempDoneList))
       setConvState(false)
     }
     fn()
   }, [convState])
-
-  const handleItemClick = async i => {
-    const res = await upload(doneList[i], generateUploadKey(doneList[i]), console.log)
-    console.log(res)
-  }
 
   return (
     <>
@@ -174,7 +169,7 @@ const ImageMin = function () {
         </Button>
       </Box>
       <Paper square className={classes.paper}>
-        <ResultList list={doneList} onClick={handleItemClick} />
+        <ResultList files={doneList} />
       </Paper>
     </>
   )
@@ -240,10 +235,6 @@ const Select = ({value, list, onChange, label}) => {
 const correctExtName = (file, extname) => {
   const {dir, name} = path.parse(file)
   return dir + '/' + name + extname
-}
-const generateUploadKey = file => {
-  const {ext} = path.parse(file)
-  return 'assets/' + uuid() + ext
 }
 
 export default ImageMin

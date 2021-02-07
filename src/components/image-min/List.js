@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {
   Button,
   Checkbox,
@@ -9,7 +9,12 @@ import {
   ListItemSecondaryAction,
   ListItemText,
 } from '@material-ui/core'
-import {CloudUpload} from '@material-ui/icons'
+import {FileCopy, CloudUpload} from '@material-ui/icons'
+import upload from './upload'
+import uuid from 'uuid/dist/v4'
+
+const path = require('path')
+const {clipboard} = require('electron').remote
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,7 +26,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function List({list, onClick}) {
+export default function List({files}) {
   const classes = useStyles()
   const [checked, setChecked] = React.useState([0])
 
@@ -40,36 +45,82 @@ export default function List({list, onClick}) {
 
   return (
     <CommonList className={classes.root}>
-      {list.map((value, i) => {
-        const labelId = `checkbox-list-label-${value}`
-
-        return (
-          <ListItem key={value} dense button onClick={handleToggle(value)}>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={checked.indexOf(value) !== -1}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{'aria-labelledby': labelId}}
-              />
-            </ListItemIcon>
-            <ListItemText id={labelId} primary={list[i]} />
-            <ListItemSecondaryAction>
-              <Button
-                variant="outlined"
-                size="small"
-                color="primary"
-                className={classes.button}
-                startIcon={<CloudUpload />}
-                onClick={() => onClick(i)}
-              >
-                上传
-              </Button>
-            </ListItemSecondaryAction>
-          </ListItem>
-        )
+      {files.map(value => {
+        return <Item key={value} checked={checked.indexOf(value) !== -1} filePath={value} handleToggle={handleToggle} />
       })}
     </CommonList>
   )
+}
+
+const UPLOAD_STATUS = {
+  PENDING: 0,
+  SUCCESS: 1,
+  FAILED: 2,
+}
+function Item({checked, handleToggle, filePath}) {
+  const [uploadStatus, setUploadStatus] = useState(UPLOAD_STATUS.PENDING)
+  const [url, setUrl] = useState(null)
+
+  const classes = useStyles()
+  const labelId = `checkbox-list-label-${filePath}`
+  const onUpload = async () => {
+    try {
+      const {url} = await uploadFile(filePath)
+      if (url) {
+        setUploadStatus(UPLOAD_STATUS.SUCCESS)
+        setUrl(url)
+      } else {
+        setUploadStatus(UPLOAD_STATUS.FAILED)
+      }
+    } catch (e) {
+      console.log(e)
+      setUploadStatus(UPLOAD_STATUS.FAILED)
+    }
+  }
+  const copy = () => {
+    copyToClipboard(url)
+  }
+  const onClick = uploadStatus === UPLOAD_STATUS.SUCCESS ? copy : onUpload
+  const Icon = uploadStatus === UPLOAD_STATUS.SUCCESS ? FileCopy : CloudUpload
+  const btnText =
+    uploadStatus === UPLOAD_STATUS.PENDING
+      ? '上传'
+      : uploadStatus === UPLOAD_STATUS.SUCCESS
+      ? '复制到剪切板'
+      : '重新上传'
+  const {name, ext} = path.parse(filePath)
+  const text = name + ext
+  return (
+    <ListItem dense button onClick={handleToggle(filePath)}>
+      {/*<ListItemIcon>*/}
+      {/*  <Checkbox edge="start" checked={checked} tabIndex={-1} disableRipple />*/}
+      {/*</ListItemIcon>*/}
+      <ListItemText id={labelId} primary={text} />
+      <ListItemSecondaryAction>
+        <Button
+          variant="outlined"
+          size="small"
+          color="primary"
+          className={classes.button}
+          startIcon={<Icon />}
+          onClick={onClick}
+        >
+          {btnText}
+        </Button>
+      </ListItemSecondaryAction>
+    </ListItem>
+  )
+}
+
+const copyToClipboard = url => {
+  clipboard.writeText(url)
+}
+const uploadFile = async filePath => {
+  const {url} = await upload(filePath, generateUploadKey(filePath), console.log)
+  copyToClipboard(url)
+  return {url}
+}
+const generateUploadKey = file => {
+  const {ext} = path.parse(file)
+  return 'assets/' + uuid() + ext
 }
