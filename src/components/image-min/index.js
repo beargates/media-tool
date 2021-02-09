@@ -102,9 +102,12 @@ const ImageMin = function () {
 
         if (currSize < size) {
           if (currReplaceFlag) {
-            fs.unlink(file, () => {}) // 删除源文件
-            fs.rename(output, correctFilePath, () => {}) // 重命名
+            fs.unlink(file, (err) => {
+              fs.rename(output, correctFilePath, () => {}) // 重命名
+            }) // 删除源文件
           }
+        } else {
+          fs.unlink(output, () => {})
         }
 
         tempDoneList.add(correctFilePath)
@@ -138,14 +141,16 @@ const ImageMin = function () {
         label={'压缩质量(0~1, 1=best)'}
       />
 
-      <DropzoneElectron
-        uploadFiles={uploadFiles}
-        setUploadFiles={setUploadFiles}
-        accept="video/*, image/jpeg, image/png"
-        multiple
-      />
-
       <Box display="flex" flexDirection="row" justifyContent="flex-end">
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          disabled={uploadFiles.size === 0}
+          onClick={() => setUploadFiles(new Set())}
+        >
+          清空
+        </Button>
         <Button
           variant="contained"
           color="primary"
@@ -156,6 +161,14 @@ const ImageMin = function () {
           处理
         </Button>
       </Box>
+
+      <DropzoneElectron
+        uploadFiles={uploadFiles}
+        setUploadFiles={setUploadFiles}
+        accept="video/*, image/jpeg, image/png"
+        multiple
+      />
+
       <Paper square className={classes.paper}>
         <ResultList files={doneList} />
       </Paper>
