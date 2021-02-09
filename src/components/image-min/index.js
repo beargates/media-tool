@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {promisify} from 'util'
 import fs from 'fs'
-import compressor from 'imagemin-pngquant'
 import {
   FormControl,
   FormControlLabel,
@@ -19,6 +18,7 @@ import {DropzoneElectron} from '../dropzone'
 import {getImageInfo} from '../../vendor/video-info'
 import {fsPromisesStats} from '../../vendor/file-util'
 import proc from './process'
+import min from './min'
 
 const path = require('path')
 const {app} = require('electron').remote
@@ -84,24 +84,12 @@ const ImageMin = function () {
         let {size: currSize} = await fsPromisesStats(output)
 
         const correctFilePath = correctExtName(file, targetExtName)
-        if (currSize >= size) {
-          fs.unlink(output, () => {})
-          // 修正扩展名
-          output = correctFilePath
-          currSize = size
-        }
 
         // console.clear()
 
         const buffer = await readFile(output)
         try {
-          const data = await compressor({
-            speed: currSpeed,
-            strip: true,
-            quality: [currQuality === 1 ? 0.8 : currQuality, currQuality],
-            // posterize: 4, // todo
-            verbose: true,
-          })(buffer)
+          const data = await min(output)
           if (data.length < currSize) {
             currSize = data.length
             await writeFile(output, data)
