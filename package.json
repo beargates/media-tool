@@ -34,6 +34,10 @@
       "dist/",
       "!node_modules/ffmpeg-static/**/*",
       "node_modules/ffmpeg-static/ffmpeg*",
+      "!node_modules/jpegtran-bin/**/*",
+      "node_modules/jpegtran-bin/vendor/*",
+      "!node_modules/pngquant-bin/**/*",
+      "node_modules/pngquant-bin/vendor/*",
       "package.js"
     ],
     "linux": {
@@ -107,6 +111,8 @@
     "imagemin": "^7.0.1",
     "imagemin-jpegtran": "^7.0.0",
     "imagemin-pngquant": "^9.0.1",
+    "jpegtran-bin": "^5.0.2",
+    "pngquant-bin": "^6.0.0",
     "qiniu": "^7.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
