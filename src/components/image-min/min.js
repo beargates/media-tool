@@ -29,7 +29,7 @@ const min = async (files, options) => {
       }),
       imageminPngquant({
         speed: 1,
-        strip: true,
+        // strip: true, // unavailable on win, got '"--strip" is unsupported'
         quality: [0.6, 0.8],
         pngquantPath,
       }),
