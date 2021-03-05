@@ -30,7 +30,7 @@ const baseDir = path.resolve(app.getAppPath()).replace('app.asar', 'app.asar.unp
 const ffmpegStaticPath = require('ffmpeg-static')
 const ffmpegPath = isDev ? path.resolve(ffmpegStaticPath) : path.resolve(baseDir, ffmpegStaticPath)
 
-const readFile = promisify(fs.readFile)
+// const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
 const ImageMin = function () {
@@ -87,11 +87,8 @@ const ImageMin = function () {
 
         const correctFilePath = correctExtName(file, targetExtName)
 
-        // console.clear()
-
-        const buffer = await readFile(output)
         try {
-          const data = await min(output)
+          const data = await min(output, {speed: currSpeed, quality: currQuality})
           if (data.length < currSize) {
             currSize = data.length
             await writeFile(output, data)
@@ -104,7 +101,7 @@ const ImageMin = function () {
 
         if (currSize < size) {
           if (currReplaceFlag) {
-            fs.unlink(file, (err) => {
+            fs.unlink(file, () => {
               fs.rename(output, correctFilePath, () => {}) // 重命名
             }) // 删除源文件
           }

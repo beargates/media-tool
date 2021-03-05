@@ -18,9 +18,12 @@ const baseDir = path.resolve(app.getAppPath()).replace('app.asar', 'app.asar.unp
 const jpegtranPath = isDev ? path.resolve(jpegtranBinPath) : path.resolve(baseDir, jpegtranBinPath)
 const pngquantPath = isDev ? path.resolve(pngquantBinPath) : path.resolve(baseDir, pngquantBinPath)
 
-const min = async (files, options) => {
+const min = async (files, options = {}) => {
   const singleFile = !Array.isArray(files)
   files = singleFile ? [files] : files
+  options.speed = options.speed || 4
+  options.quality = options.quality || 0.6
+
   const done = await imagemin(files, {
     // destination: 'build/images',
     glob: false,
@@ -29,9 +32,9 @@ const min = async (files, options) => {
         jpegtranPath,
       }),
       imageminPngquant({
-        speed: 1,
+        speed: options.speed,
         // strip: true, // unavailable on win, got '"--strip" is unsupported'
-        quality: [0.6, 0.8],
+        quality: [options.quality, 1],
         pngquantPath,
       }),
       imageminOptipng(),
