@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react'
 import {promisify} from 'util'
 import fs from 'fs'
 import {
+  colors,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   Switch as BaseSwitch,
@@ -142,24 +144,29 @@ const ImageMin = function () {
       />
 
       <Box display="flex" flexDirection="row" justifyContent="flex-end">
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          disabled={uploadFiles.size === 0}
-          onClick={() => setUploadFiles(new Set())}
-        >
-          清空
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          disabled={uploadFiles.size === 0}
-          onClick={() => setConvState(true)}
-        >
-          处理
-        </Button>
+        <div className={classes.wrapper}>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            disabled={convState || uploadFiles.size === 0}
+            onClick={() => setUploadFiles(new Set())}
+          >
+            清空
+          </Button>
+        </div>
+        <div className={classes.wrapper}>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            disabled={uploadFiles.size === 0}
+            onClick={() => setConvState(true)}
+          >
+            处理
+          </Button>
+          {convState && <CircularProgress size={24} className={classes.buttonProgress} />}
+        </div>
       </Box>
 
       <DropzoneElectron
@@ -179,6 +186,7 @@ const ImageMin = function () {
 const SPEED_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const QUALITY_LIST = [0.5, 0.8, 1]
 
+const {blue: green} = colors
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -199,6 +207,18 @@ const useStyles = makeStyles(theme => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 180,
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: 'relative',
+  },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
   },
 }))
 

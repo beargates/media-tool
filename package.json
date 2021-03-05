@@ -1,6 +1,6 @@
 {
   "name": "media-tool",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "火花思维-图片处理工具集",
   "scripts": {
     "build:web": "cross-env NODE_ENV=production node webpack-build.js",
@@ -106,12 +106,14 @@
     "@huohua/upload-web-qiniu": "^1.0.2",
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
-    "ffmpeg-static": "4.2.7",
+    "clsx": "^1.1.1",
     "fluent-ffmpeg": "^2.1.2",
     "imagemin": "^7.0.1",
     "imagemin-jpegtran": "^7.0.0",
+    "imagemin-optipng": "^8.0.0",
     "imagemin-pngquant": "^9.0.1",
     "jpegtran-bin": "^5.0.2",
+    "optipng-bin": "^7.0.0",
     "pngquant-bin": "^6.0.0",
     "qiniu": "^7.3.2",
     "react": "^16.13.1",

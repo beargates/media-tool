@@ -1,6 +1,7 @@
 const imagemin = require('imagemin')
 const imageminJpegtran = require('imagemin-jpegtran')
 const imageminPngquant = require('imagemin-pngquant')
+const imageminOptipng = require('imagemin-optipng')
 
 const path = require('path')
 const {app} = require('electron').remote
@@ -33,6 +34,7 @@ const min = async (files, options) => {
         quality: [0.6, 0.8],
         pngquantPath,
       }),
+      imageminOptipng(),
     ],
   })
   console.log(done)
