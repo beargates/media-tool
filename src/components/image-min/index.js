@@ -2,13 +2,13 @@ import React, {useEffect, useState} from 'react'
 import {promisify} from 'util'
 import fs from 'fs'
 import {
-  colors,
-  CircularProgress,
+  LinearProgress,
   FormControl,
   FormControlLabel,
   Switch as BaseSwitch,
   Box,
   makeStyles,
+  withStyles,
   InputLabel,
   Select as BaseSelect,
   MenuItem,
@@ -45,6 +45,8 @@ const ImageMin = function () {
   const [uploadFiles, setUploadFiles] = useState(new Set())
   const [doneList, setDoneList] = useState([])
   const [convState, setConvState] = useState(false)
+
+  const [proceed, setProceed] = useState(new Set())
 
   useEffect(() => {
     const fn = async () => {
@@ -110,13 +112,18 @@ const ImageMin = function () {
         }
 
         tempDoneList.add(correctFilePath)
+        proceed.add(file)
+        setProceed(new Set([...proceed]))
       }
       setUploadFiles(new Set())
       setDoneList(Array.from(tempDoneList))
       setConvState(false)
+      setProceed(new Set())
     }
     fn()
   }, [convState])
+
+  const progress = (proceed.size / uploadFiles.size) * 100
 
   return (
     <>
@@ -162,7 +169,7 @@ const ImageMin = function () {
           >
             处理
           </Button>
-          {convState && <CircularProgress size={24} className={classes.buttonProgress} />}
+          {convState && <Loading variant="determinate" value={progress} />}
         </div>
       </Box>
 
@@ -183,7 +190,6 @@ const ImageMin = function () {
 const SPEED_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const QUALITY_LIST = [0.5, 0.8, 1]
 
-const {blue: green} = colors
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -209,16 +215,26 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1),
     position: 'relative',
   },
-  buttonProgress: {
-    color: green[500],
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
 }))
-
+const Loading = withStyles(theme => ({
+  root: {
+    height: 'initial', // 覆盖默认
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    margin: theme.spacing(1),
+    opacity: 0.5,
+    borderRadius: '4px',
+  },
+  colorPrimary: {
+    backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
+  },
+  bar: {
+    backgroundColor: 'rgb(26,144,255)',
+  },
+}))(LinearProgress)
 const Switch = ({checked, onChange, label}) => {
   const classes = useStyles()
   return (
