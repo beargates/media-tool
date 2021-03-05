@@ -12,11 +12,13 @@ const {app} = require('electron').remote
 // const pngquantBinPath = require('pngquant-bin')
 const jpegtranBinPath = 'node_modules/jpegtran-bin/vendor/jpegtran'
 const pngquantBinPath = 'node_modules/pngquant-bin/vendor/pngquant'
+const optipngBinPath = 'node_modules/optipng-bin/vendor/optipng'
 
 const isDev = process.env.NODE_ENV === 'development'
 const baseDir = path.resolve(app.getAppPath()).replace('app.asar', 'app.asar.unpacked')
 const jpegtranPath = isDev ? path.resolve(jpegtranBinPath) : path.resolve(baseDir, jpegtranBinPath)
 const pngquantPath = isDev ? path.resolve(pngquantBinPath) : path.resolve(baseDir, pngquantBinPath)
+const optipngPath = isDev ? path.resolve(optipngBinPath) : path.resolve(baseDir, optipngBinPath)
 
 const min = async (files, options = {}) => {
   const singleFile = !Array.isArray(files)
@@ -37,7 +39,7 @@ const min = async (files, options = {}) => {
         quality: [options.quality, 1],
         pngquantPath,
       }),
-      imageminOptipng(),
+      imageminOptipng({optipngPath}),
     ],
   })
   console.log(done)
