@@ -83,8 +83,8 @@ const matchResolution = context => {
   let videoResolution
   for (const msg of msgList) {
     if (msg.includes('Video:')) {
-      const matchList = msg.match(/[^\d](\d{2,4}x\d{2,4})[^\d]/)
-      if (matchList.length > 1) videoResolution = matchList[1]
+      const matchList = msg.match(/[^\d](\d{1,4}x\d{1,4})[^\d]/)
+      if (matchList && matchList.length > 1) videoResolution = matchList[1]
     }
     if (msg.match(/rotate +: 90/)) {
       videoResolution = videoResolution.split('x').reverse().join('x')
