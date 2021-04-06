@@ -14,8 +14,10 @@ import {
   MenuItem,
   Button,
   Paper,
+  Modal,
 } from '@material-ui/core'
 import ResultList from './List'
+import VideoDetails from './details'
 import {DropzoneElectron} from '../dropzone'
 import {getImageInfo} from '../../vendor/video-info'
 import {fsPromisesStats} from '../../vendor/file-util'
@@ -33,6 +35,14 @@ const ffmpegPath = isDev ? path.resolve(ffmpegStaticPath) : path.resolve(baseDir
 // const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
+function getModalStyle() {
+  return {
+    top: `50%`,
+    left: `50%`,
+    transform: `translate(-50%, -50%)`,
+  }
+}
+
 const ImageMin = function () {
   const classes = useStyles()
 
@@ -47,6 +57,18 @@ const ImageMin = function () {
   const [convState, setConvState] = useState(false)
 
   const [proceed, setProceed] = useState(new Set())
+
+  // getModalStyle is not a pure function, we roll the style only on the first render
+  const [modalStyle] = React.useState(getModalStyle)
+  const [open, setOpen] = React.useState(false)
+
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   useEffect(() => {
     const fn = async () => {
@@ -149,6 +171,11 @@ const ImageMin = function () {
 
       <Box display="flex" flexDirection="row" justifyContent="flex-end">
         <div className={classes.wrapper}>
+          <Button variant="contained" color="primary" className={classes.button} onClick={handleOpen}>
+            视频详情
+          </Button>
+        </div>
+        <div className={classes.wrapper}>
           <Button
             variant="contained"
             color="primary"
@@ -180,9 +207,15 @@ const ImageMin = function () {
         multiple
       />
 
-      <Paper square className={classes.paper}>
+      <Paper square>
         <ResultList files={doneList} />
       </Paper>
+
+      <Modal open={open} onClose={handleClose}>
+        <div style={modalStyle} className={classes.paper}>
+          <VideoDetails />
+        </div>
+      </Modal>
     </>
   )
 }
@@ -214,6 +247,15 @@ const useStyles = makeStyles(theme => ({
   wrapper: {
     margin: theme.spacing(1),
     position: 'relative',
+  },
+  paper: {
+    position: 'absolute',
+    width: '80%',
+    height: '80%',
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
   },
 }))
 const Loading = withStyles(theme => ({

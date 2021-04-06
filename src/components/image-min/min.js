@@ -31,15 +31,15 @@ const min = async (files, options = {}) => {
     glob: false,
     plugins: [
       imageminJpegtran({
-        jpegtranPath,
+        path: jpegtranPath,
       }),
       imageminPngquant({
         speed: options.speed,
         // strip: true, // unavailable on win, got '"--strip" is unsupported'
-        quality: [options.quality, 1],
-        pngquantPath,
+        quality: [0.6, 0.8],
+        path: pngquantPath,
       }),
-      imageminOptipng({optipngPath}),
+      imageminOptipng({path: optipngPath}),
     ],
   })
   console.log(done)

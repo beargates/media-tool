@@ -84,7 +84,7 @@ const matchResolution = context => {
   for (const msg of msgList) {
     if (msg.includes('Video:')) {
       const matchList = msg.match(/[^\d](\d{1,4}x\d{1,4})[^\d]/)
-      if (matchList && matchList.length > 1) videoResolution = matchList[1]
+      if (matchList && matchList?.length > 1) videoResolution = matchList[1]
     }
     if (msg.match(/rotate +: 90/)) {
       videoResolution = videoResolution.split('x').reverse().join('x')
@@ -102,7 +102,7 @@ const matchCodeRate = context => {
   for (const msg of msgList) {
     if (msg.includes('Duration:')) {
       const matchList = msg.match(/bitrate: ([^ ]+) /)
-      if (matchList.length > 1) codeRate = matchList[1]
+      if (matchList?.length > 1) codeRate = matchList[1]
     }
   }
 
@@ -131,6 +131,22 @@ const matchDuration = context => {
   return {...context, videoDuration, videoDurationSecond}
 }
 
+const matchFPS = context => {
+  const {msgList} = context
+  // logger.log('matchResolution msgList', msgList)
+  let fps
+  for (const msg of msgList) {
+    if (msg.includes('Video:')) {
+      const matchList = msg.match(/ *([^,]+) fps/)
+      console.log(matchList)
+      if (matchList?.length > 1) fps = matchList[1]
+    }
+  }
+
+  // return Promise.reject('获取视频分辨率失败')
+  return {...context, fps}
+}
+
 export const getVideoInfo = context =>
   Promise.resolve(context).then(
     async context =>
@@ -150,6 +166,7 @@ export const getVideoInfo = context =>
         matchResolution,
         matchDuration,
         matchCodeRate,
+        matchFPS,
         removeKey(['msgList']),
       ])
   )

@@ -38,6 +38,8 @@
       "node_modules/jpegtran-bin/vendor/*",
       "!node_modules/pngquant-bin/**/*",
       "node_modules/pngquant-bin/vendor/*",
+      "!node_modules/optipng-bin/**/*",
+      "node_modules/optipng-bin/vendor/*",
       "package.js"
     ],
     "linux": {
@@ -105,6 +107,7 @@
   "dependencies": {
     "@huohua/upload-web-qiniu": "^1.0.2",
     "@material-ui/core": "^4.9.14",
+    "@material-ui/data-grid": "^4.0.0-alpha.22",
     "@material-ui/icons": "^4.9.1",
     "clsx": "^1.1.1",
     "ffmpeg-static": "4.2.7",
